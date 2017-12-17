@@ -1,0 +1,49 @@
+0.======== ====== ==== how to to read this file =======
+notation: 
+"->" : file name
+"nothing" code in a file
+"$" linux comment
+"-->>"how to change
+
+1. ======== ======= === setup extern variable for debug topic=== ====== ======
+-> ROSAdapter.cpp
+ros::Publiser debugPublish;
+	infoLogPublisher = mNH.advertise<> ....
+
+->xxxController.cpp
+extern ros::Publisher infoLogPublisher; 
+std_msgs::String msg_search;//Sammi debug
+stringstream sss;
+
+->xxxController.cpp in where you want to add the debug message 
+sss.str( std::string() );
+sss.clear();
+sss << "first waypoint: " << searchLocation.theta <<endl; 
+msg_search.data = sss.str();
+infoLogPublisher.publish(msg_search);
+
+then 
+$rostopic echo /infoLog
+
+if error as
+Errors     << behaviours:make /home/xlei/SwarmBaseCode-ROS/logs/behaviours/build.make.022.log
+CMakeFiles/behaviours.dir/src/SearchController.cpp.o: In function `__static_initialization_and_destruction_0(int, int)':
+SearchController.cpp:(.text+0xc2e): undefined reference to `mNH'
+collect2: error: ld returned 1 exit status
+make[2]: *** [/home/xlei/SwarmBaseCode-ROS/devel/.private/behaviours/lib/behaviours/behaviours] Error 1
+make[1]: *** [CMakeFiles/behaviours.dir/all] Error 2
+make: *** [all] Error 2
+
+because in SearchController.cpp I redefine the variable:
+
+extern ros::Publisher debugPublish = mNH.advertise<> ....
+
+2.========= how to modify the set number of rover to be checked with 1 rover by default====== ====
+$cd SwarmBaseCode-ROS
+$gedit ./build/rqt_rover_gui/ui_rover_gui_plugin.h
+
+override_num_rovers_checkbox->setChecked(false); 
+-->> false to be true//sammi
+
+<< QApplication::translate("RoverGUI", "0", 0) 
+-->> comment this as /**<< QApplication::translate("RoverGUI", "0", 0)//sammi**/
